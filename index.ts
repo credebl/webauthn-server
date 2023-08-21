@@ -43,7 +43,7 @@ dotenv.config();
 const app = express();
 const MemoryStore = memoryStore(session);
 
-const { ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = 'localhost' } = process.env;
+const { ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = 'dev.credebl.id' } = process.env;
 app.use(cors());
 app.use(express.static('./public/'));
 app.use(express.json());
@@ -82,7 +82,7 @@ export const rpID = RP_ID;
 // This value is set at the bottom of page as part of server initialization (the empty string is
 // to appease TypeScript until we determine the expected origin based on whether or not HTTPS
 // support is enabled)
-export const expectedOrigin = 'http://localhost:3000';
+export const expectedOrigin = 'https://dev.credebl.id';
 
 /**
  * 2FA and Passwordless WebAuthn flows expect you to be able to uniquely identify the user that
