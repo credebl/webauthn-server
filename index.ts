@@ -6,12 +6,6 @@
  */
 
 import type {
-  AuthenticationResponseJSON,
-  AuthenticatorDevice,
-  PublicKeyCredentialDescriptorFuture,
-  RegistrationResponseJSON,
-} from '@simplewebauthn/typescript-types';
-import type {
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
   VerifiedAuthenticationResponse,
@@ -43,7 +37,7 @@ dotenv.config();
 const app = express();
 const MemoryStore = memoryStore(session);
 
-const { ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = 'dev.credebl.id' } = process.env;
+const { ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = 'localhost' } = process.env; // Change RP_ID according to environment
 app.use(cors());
 app.use(express.static('./public/'));
 app.use(express.json());
@@ -82,7 +76,7 @@ export const rpID = RP_ID;
 // This value is set at the bottom of page as part of server initialization (the empty string is
 // to appease TypeScript until we determine the expected origin based on whether or not HTTPS
 // support is enabled)
-export const expectedOrigin = 'https://dev.credebl.id';
+export const expectedOrigin = 'http://localhost:3000'; //// Change expectedOrigin according to environment
 
 /**
  * 2FA and Passwordless WebAuthn flows expect you to be able to uniquely identify the user that
@@ -105,7 +99,7 @@ const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
 /**
  * Registration (a.k.a. "Registration")
  */
-app.get('/generate-registration-options', (req, res) => {
+app.get('/generate-registration-options', async (req, res) => {
   const user = inMemoryUserDeviceDB[loggedInUserId];
   let userName = req.query.userName;
   if (typeof userName !== 'string') {
@@ -144,14 +138,14 @@ app.get('/generate-registration-options', (req, res) => {
      */
     supportedAlgorithmIDs: [-7, -257],
   };
-
-  const options = generateRegistrationOptions(opts);
-
+ 
+  const options = await generateRegistrationOptions(opts);
+   
   /**
    * The server needs to temporarily remember this value for verification, so don't lose it until
    * after you verify an authenticator response.
    */
-  req.session.currentChallenge = options.challenge;
+  req.session.currentChallenge = (await options).challenge;
 
   res.send(options);
 });
@@ -214,10 +208,9 @@ app.post('/verify-registration', async (req, res) => {
 /**
  * Login (a.k.a. "Authentication")
  */
-app.post('/generate-authentication-options', (req, res) => {
-  // You need to know the user by this point
-  const user = inMemoryUserDeviceDB[loggedInUserId];
-  let allowCredential: PublicKeyCredentialDescriptorFuture[] = [];
+app.post('/generate-authentication-options', async (req, res) => {
+ 
+  let allowCredential = [];
   for (const credentialId of req.body) {
 
     let credentialID = new Uint8Array(Buffer.from(credentialId as any, 'base64'));;
@@ -230,17 +223,16 @@ app.post('/generate-authentication-options', (req, res) => {
 
   const opts: GenerateAuthenticationOptionsOpts = {
     timeout: 60000,
-    allowCredentials: allowCredential,
+    allowCredentials: [],
     userVerification: 'required',
     rpID,
   };
-  const options = generateAuthenticationOptions(opts);
-
+  const options = await generateAuthenticationOptions(opts);
   /**
    * The server needs to temporarily remember this value for verification, so don't lose it until
    * after you verify an authenticator response.
    */
-  req.session.currentChallenge = options.challenge;
+  req.session.currentChallenge = (await options).challenge;
 
   res.send(options);
 });
@@ -250,7 +242,7 @@ app.post('/verify-authentication', async (req, res) => {
   const body = rest;
   const expectedChallenge = challangeId;
 
-  let dbAuthenticator: AuthenticatorDevice = {
+  let dbAuthenticator = {
     credentialPublicKey: new Uint8Array(),
     credentialID: new Uint8Array(),
     counter: 0,
