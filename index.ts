@@ -4,7 +4,6 @@
  *
  * The webpages served from ./public use @simplewebauthn/browser.
  */
-
 import type {
   GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
@@ -20,7 +19,6 @@ import {
   verifyRegistrationResponse,
 } from '@simplewebauthn/server';
 
-import { LoggedInUser } from './example-server';
 import base64url from 'base64url';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -86,32 +84,14 @@ export const expectedOrigin = 'http://localhost:3000'; //// Change expectedOrigi
  *
  * Here, the example server assumes the following user has completed login:
  */
-const loggedInUserId = 'internalUserId';
-
-const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
-  [loggedInUserId]: {
-    id: loggedInUserId,
-    username: `CREDEBL@${rpID}`,
-    devices: [],
-  },
-};
-
 /**
  * Registration (a.k.a. "Registration")
  */
 app.get('/generate-registration-options', async (req, res) => {
-  const user = inMemoryUserDeviceDB[loggedInUserId];
   let userName = req.query.userName;
   if (typeof userName !== 'string') {
     throw new Error("Username is not string")
   }
-  let {
-    /**
-     * The username can be a human-readable name, email, etc... as it is intended only for display.
-     */
-    devices,
-  } = user;
-  devices = [];
   const opts: GenerateRegistrationOptionsOpts = {
     rpName: 'SimpleWebAuthn Example',
     rpID,
@@ -125,11 +105,7 @@ app.get('/generate-registration-options', async (req, res) => {
      * the browser if it's asked to perform registration when one of these ID's already resides
      * on it.
      */
-    excludeCredentials: devices.map(dev => ({
-      id: dev.credentialID,
-      type: 'public-key',
-      transports: dev.transports,
-    })),
+    excludeCredentials:[],
     authenticatorSelection: {
       residentKey: 'discouraged',
     },
@@ -138,22 +114,13 @@ app.get('/generate-registration-options', async (req, res) => {
      */
     supportedAlgorithmIDs: [-7, -257],
   };
- 
-  const options = await generateRegistrationOptions(opts);
-   
-  /**
-   * The server needs to temporarily remember this value for verification, so don't lose it until
-   * after you verify an authenticator response.
-   */
-  req.session.currentChallenge = (await options).challenge;
 
+  const options = await generateRegistrationOptions(opts);
   res.send(options);
 });
 
 app.post('/verify-registration', async (req, res) => {
-  const { challangeId, ...rest } = req?.body;
-  const body = rest;
-  const user = inMemoryUserDeviceDB[loggedInUserId];
+  const { challangeId, ...body } = req?.body;
   const expectedChallenge = challangeId;
   let verification: VerifiedRegistrationResponse;
   try {
@@ -173,26 +140,13 @@ app.post('/verify-registration', async (req, res) => {
   let newDevice: any = {};
   if (verified && registrationInfo) {
     const { credentialPublicKey, credentialID, counter } = registrationInfo;
-
-    const existingDevice = user.devices.find(device =>
-      isoUint8Array.areEqual(device.credentialID, credentialID),
-    );
-
-    if (!existingDevice) {
-      /**
-       * Add the returned device to the user's list of devices
-       */
       newDevice = {
         credentialPublicKey,
         credentialID,
         counter,
         transports: body.response.transports,
       };
-      user.devices.push(newDevice);
-    }
   }
-
-  req.session.currentChallenge = undefined;
   const pubKey = Buffer.from(newDevice.credentialPublicKey).toString('base64');
   const credID = Buffer.from(newDevice.credentialID).toString('base64');
   newDevice = {
@@ -209,18 +163,6 @@ app.post('/verify-registration', async (req, res) => {
  * Login (a.k.a. "Authentication")
  */
 app.post('/generate-authentication-options', async (req, res) => {
- 
-  let allowCredential = [];
-  for (const credentialId of req.body) {
-
-    let credentialID = new Uint8Array(Buffer.from(credentialId as any, 'base64'));;
-    allowCredential.push({
-      id: credentialID,
-      type: 'public-key',
-      transports: [],
-    })
-  }
-
   const opts: GenerateAuthenticationOptionsOpts = {
     timeout: 60000,
     allowCredentials: [],
@@ -228,18 +170,12 @@ app.post('/generate-authentication-options', async (req, res) => {
     rpID,
   };
   const options = await generateAuthenticationOptions(opts);
-  /**
-   * The server needs to temporarily remember this value for verification, so don't lose it until
-   * after you verify an authenticator response.
-   */
-  req.session.currentChallenge = (await options).challenge;
 
   res.send(options);
 });
 
 app.post('/verify-authentication', async (req, res) => {
-  const { challangeId, ...rest } = JSON.parse(req?.body?.verifyAuthenticationDetails);
-  const body = rest;
+  const { challangeId, ...body } = JSON.parse(req?.body?.verifyAuthenticationDetails);
   const expectedChallenge = challangeId;
 
   let dbAuthenticator = {
@@ -248,6 +184,7 @@ app.post('/verify-authentication', async (req, res) => {
     counter: 0,
     transports: [],
   };
+  
   req?.body?.devices.map((cred: any) => {
     const bodyCredIDBuffer = base64url.toBuffer(body.rawId);
     const credId = new Uint8Array(Buffer.from(cred.credentialId, 'base64'));
