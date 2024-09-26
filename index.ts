@@ -120,7 +120,7 @@ app.get('/generate-registration-options', async (req, res) => {
 });
 
 app.post('/verify-registration', async (req, res) => {
-  const { challangeId, ...body } = req?.body;
+  const { challangeId, ...body } = req.body;
   const expectedChallenge = challangeId;
   let verification: VerifiedRegistrationResponse;
   try {
