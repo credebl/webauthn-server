@@ -60,20 +60,6 @@ app.use(express.static("./public/"));
 app.use(express.json());
 app.use(csrf());
 app.use(apiLimiter);
-app.use(
-  session({
-    secret: "secret123",
-    saveUninitialized: true,
-    resave: false,
-    cookie: {
-      maxAge: 86400000,
-      httpOnly: true, // Ensure to not expose session cookies to clientside scripts
-    },
-    store: new MemoryStore({
-      //checkPeriod: 86_400_000, // prune expired entries every 24h
-    }),
-  })
-);
 
 /**
  * If the words "metadata statements" mean anything to you, you'll want to enable this route. It
@@ -219,7 +205,6 @@ app.post('/generate-authentication-options', async (req, res) => {
     const options = await generateAuthenticationOptions(opts);
     return res.status(200).json(options);
   } catch (error) {
-    // **Error Handling**: Log and return error response
     const _error = error as Error;
     logger.error('Error generating authentication options', _error);
     return res.status(500).json({ error: _error.message });
@@ -280,7 +265,6 @@ app.post("/verify-authentication", async (req, res) => {
     dbAuthenticator.counter = authenticationInfo.newCounter;
   }
 
-  req.session.currentChallenge = undefined;
   res.send({ verified });
 });
 
