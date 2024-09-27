@@ -31,6 +31,8 @@ import memoryStore from "memorystore";
 import session from "express-session";
 import logger from "./logger";
 import { DEFAULT_EXPECTED_ORIGINS, DEFAULT_RP_ID, TIMEOUT } from "./constants";
+import csrf from 'lusca';
+import rateLimit from 'express-rate-limit';
 
 type AuthenticatorDevice = {
   credentialPublicKey: string;
@@ -38,6 +40,14 @@ type AuthenticatorDevice = {
   counter: number;
   transports: string[];
 };
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10000, // Limit each IP to 10000 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 dotenv.config();
 
@@ -48,6 +58,8 @@ const { ENABLE_CONFORMANCE, ENABLE_HTTPS } = process.env;
 app.use(cors());
 app.use(express.static("./public/"));
 app.use(express.json());
+app.use(csrf());
+app.use(apiLimiter);
 app.use(
   session({
     secret: "secret123",
