@@ -27,10 +27,8 @@ import fs from "fs";
 import http from "http";
 import https from "https";
 import { isoUint8Array } from "@simplewebauthn/server/helpers";
-import memoryStore from "memorystore";
-import session from "express-session";
 import logger from "./logger";
-import { DEFAULT_EXPECTED_ORIGINS, DEFAULT_RP_ID, TIMEOUT } from "./constants";
+import { DEFAULT_EXPECTED_ORIGINS, DEFAULT_RP_ID, RP_NAME, TIMEOUT } from "./constants";
 import csrf from 'lusca';
 import rateLimit from 'express-rate-limit';
 
@@ -52,7 +50,6 @@ const apiLimiter = rateLimit({
 dotenv.config();
 
 const app = express();
-const MemoryStore = memoryStore(session);
 
 const { ENABLE_CONFORMANCE, ENABLE_HTTPS } = process.env;
 app.use(cors());
@@ -109,7 +106,7 @@ app.get("/generate-registration-options", async (req, res) => {
   }
   try {
     const opts: GenerateRegistrationOptionsOpts = {
-      rpName: "CREDEBL",
+      rpName: process.env.RP_NAME ? process.env.RP_NAME : RP_NAME,
       rpID,
       userID: userName,
       userName: userName,
@@ -144,7 +141,7 @@ app.get("/generate-registration-options", async (req, res) => {
 app.post('/verify-registration', async (req, res) => {
   logger.info('verify-registration-called');
 
-  const { challangeId, ...body } = req.body;
+  const { challangeId, ...body } = req.body;  //TODO: Correct the name `challangeId`
 
   if (!challangeId || typeof challangeId !== 'string') {
     return res.status(400).json({ error: 'Invalid challenge ID' });
