@@ -99,7 +99,7 @@ const expectedOrigin = process.env.EXPECTED_ORIGINS
  * Registration (a.k.a. "Registration")
  */
 app.get("/generate-registration-options", async (req, res) => {
-  // logger.info("generate-registration-options-called");
+  logger.info("generate-registration-options-called");
   let userName = req.query.userName;
 
   if (typeof userName !== "string" || userName.trim() === "") {
