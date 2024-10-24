@@ -76,12 +76,12 @@ if (ENABLE_CONFORMANCE === "true") {
  * RP ID represents the "scope" of websites on which a authenticator should be usable. The Origin
  * represents the expected URL from which registration or authentication occurs.
  */
-const rpID = process.env.RP_ID ? JSON.parse(process.env.RP_ID) : DEFAULT_RP_ID;
+const rpID = process.env.RP_ID ? (process.env.RP_ID) : DEFAULT_RP_ID;
 // This value is set at the bottom of page as part of server initialization (the empty string is
 // to appease TypeScript until we determine the expected origin based on whether or not HTTPS
 // support is enabled)
 const expectedOrigin = process.env.EXPECTED_ORIGINS
-  ? JSON.parse(process.env.EXPECTED_ORIGINS)
+  ? process.env.EXPECTED_ORIGINS
   : DEFAULT_EXPECTED_ORIGINS; // Change expectedOrigin according to environment
 
 /**
@@ -107,7 +107,7 @@ app.get("/generate-registration-options", async (req, res) => {
   try {
     const opts: GenerateRegistrationOptionsOpts = {
       rpName: process.env.RP_NAME ? process.env.RP_NAME : RP_NAME,
-      rpID,
+      rpID: rpID,
       userID: userName,
       userName: userName,
       timeout: TIMEOUT,
