@@ -31,6 +31,7 @@ import logger from "./logger";
 import { DEFAULT_EXPECTED_ORIGINS, DEFAULT_RP_ID, RP_NAME, TIMEOUT } from "./constants";
 import csrf from 'lusca';
 import rateLimit from 'express-rate-limit';
+dotenv.config();
 
 type AuthenticatorDevice = {
   credentialPublicKey: string;
@@ -137,7 +138,6 @@ app.get("/generate-registration-options", async (req, res) => {
       .json({ error: "Failed to generate registration options" });
   }
 });
-
 app.post('/verify-registration', async (req, res) => {
   logger.info('verify-registration-called');
 
@@ -265,7 +265,7 @@ app.post("/verify-authentication", async (req, res) => {
   res.send({ verified });
 });
 
-if (ENABLE_HTTPS) {
+if (ENABLE_HTTPS === 'true') {
   const host = "0.0.0.0";
   const port = 443;
   const expectedOrigin = `https://${rpID}`;
