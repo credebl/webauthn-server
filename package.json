@@ -20,7 +20,7 @@
     "express-session": "^1.17.3",
     "lusca": "^1.7.0",
     "memorystore": "^1.6.7",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.3.2",
     "winston": "^3.14.2"
   },
   "devDependencies": {
