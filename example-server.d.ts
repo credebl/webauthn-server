@@ -1,4 +1,4 @@
-import type { AuthenticatorDevice } from '@simplewebauthn/typescript-types';
+import type { AuthenticatorDevice } from '@simplewebauthn/types';
 
 /**
  * You'll need a database to store a few things:
@@ -31,10 +31,11 @@ import type { AuthenticatorDevice } from '@simplewebauthn/typescript-types';
  * authenticator credential IDs to pass into `generateAuthenticationOptions()`, from which one is
  * expected to generate an authentication response.
  */
-interface LoggedInUser {
+export interface LoggedInUser {
   id: string;
   username: string;
   devices: AuthenticatorDevice[];
+  currentChallenge?: string;
 }
 
 declare module 'express-session' {

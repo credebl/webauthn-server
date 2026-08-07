@@ -11,6 +11,9 @@ importers:
       '@simplewebauthn/server':
         specifier: ^9.0.3
         version: 9.0.3
+      '@simplewebauthn/types':
+        specifier: ^9.0.1
+        version: 9.0.1
       base64url:
         specifier: ^3.0.1
         version: 3.0.1
@@ -22,19 +25,19 @@ importers:
         version: 10.0.0
       express:
         specifier: ^4.17.1
-        version: 4.21.0
+        version: 4.21.0(supports-color@5.5.0)
       express-rate-limit:
         specifier: ^7.4.0
-        version: 7.4.0(express@4.21.0)
+        version: 7.4.0(express@4.21.0(supports-color@5.5.0))
       express-session:
         specifier: ^1.17.3
-        version: 1.18.0
+        version: 1.18.0(supports-color@5.5.0)
       lusca:
         specifier: ^1.7.0
         version: 1.7.0
       memorystore:
         specifier: ^1.6.7
-        version: 1.6.7
+        version: 1.6.7(supports-color@5.5.0)
       node-fetch:
         specifier: ^2.6.0
         version: 2.7.0
@@ -123,6 +126,7 @@ packages:
 
   '@simplewebauthn/types@9.0.1':
     resolution: {integrity: sha512-tGSRP1QvsAvsJmnOlRQyw/mvK9gnPtjEc5fg2+m8n+QUa+D7rvrKkOYyfpy42GTs90X3RDOnqJgfHt+qO67/+w==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
@@ -1000,11 +1004,11 @@ snapshots:
 
   binary-extensions@2.3.0: {}
 
-  body-parser@1.20.3:
+  body-parser@1.20.3(supports-color@5.5.0):
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       destroy: 1.2.0
       http-errors: 2.0.0
@@ -1102,9 +1106,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  debug@2.6.9:
+  debug@2.6.9(supports-color@5.5.0):
     dependencies:
       ms: 2.0.0
+    optionalDependencies:
+      supports-color: 5.5.0
 
   debug@3.2.7(supports-color@5.5.0):
     dependencies:
@@ -1112,9 +1118,11 @@ snapshots:
     optionalDependencies:
       supports-color: 5.5.0
 
-  debug@4.3.7:
+  debug@4.3.7(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
+      supports-color: 5.5.0
 
   define-data-property@1.1.4:
     dependencies:
@@ -1150,15 +1158,15 @@ snapshots:
 
   etag@1.8.1: {}
 
-  express-rate-limit@7.4.0(express@4.21.0):
+  express-rate-limit@7.4.0(express@4.21.0(supports-color@5.5.0)):
     dependencies:
-      express: 4.21.0
+      express: 4.21.0(supports-color@5.5.0)
 
-  express-session@1.18.0:
+  express-session@1.18.0(supports-color@5.5.0):
     dependencies:
       cookie: 0.6.0
       cookie-signature: 1.0.7
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       on-headers: 1.0.2
       parseurl: 1.3.3
@@ -1167,21 +1175,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  express@4.21.0:
+  express@4.21.0(supports-color@5.5.0):
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.3
+      body-parser: 1.20.3(supports-color@5.5.0)
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookie: 0.6.0
       cookie-signature: 1.0.6
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
-      finalhandler: 1.3.1
+      finalhandler: 1.3.1(supports-color@5.5.0)
       fresh: 0.5.2
       http-errors: 2.0.0
       merge-descriptors: 1.0.3
@@ -1193,8 +1201,8 @@ snapshots:
       qs: 6.13.0
       range-parser: 1.2.1
       safe-buffer: 5.2.1
-      send: 0.19.0
-      serve-static: 1.16.2
+      send: 0.19.0(supports-color@5.5.0)
+      serve-static: 1.16.2(supports-color@5.5.0)
       setprototypeof: 1.2.0
       statuses: 2.0.1
       type-is: 1.6.18
@@ -1209,9 +1217,9 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  finalhandler@1.3.1:
+  finalhandler@1.3.1(supports-color@5.5.0):
     dependencies:
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       encodeurl: 2.0.0
       escape-html: 1.0.3
       on-finished: 2.4.1
@@ -1328,9 +1336,9 @@ snapshots:
 
   media-typer@0.3.0: {}
 
-  memorystore@1.6.7:
+  memorystore@1.6.7(supports-color@5.5.0):
     dependencies:
-      debug: 4.3.7
+      debug: 4.3.7(supports-color@5.5.0)
       lru-cache: 4.1.5
     transitivePeerDependencies:
       - supports-color
@@ -1446,9 +1454,9 @@ snapshots:
 
   semver@7.0.0: {}
 
-  send@0.19.0:
+  send@0.19.0(supports-color@5.5.0):
     dependencies:
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       destroy: 1.2.0
       encodeurl: 1.0.2
@@ -1464,12 +1472,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  serve-static@1.16.2:
+  serve-static@1.16.2(supports-color@5.5.0):
     dependencies:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 0.19.0
+      send: 0.19.0(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
