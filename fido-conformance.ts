@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import fs from 'fs';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import fetch from 'node-fetch';
 import base64url from 'base64url';
 
@@ -17,7 +18,7 @@ import { isoUint8Array } from '@simplewebauthn/server/helpers';
 import {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
-} from '@simplewebauthn/typescript-types';
+} from '@simplewebauthn/types';
 
 import { rpID, expectedOrigin } from './index';
 import { LoggedInUser } from './example-server';
@@ -30,6 +31,17 @@ interface LoggedInFIDOUser extends LoggedInUser {
  * Create paths specifically for testing with the FIDO Conformance Tools
  */
 export const fidoConformanceRouter = express.Router();
+
+// Same limits as the app-wide limiter in index.ts, applied explicitly to the conformance routes
+fidoConformanceRouter.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10000, // Limit each IP to 10000 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
 export const fidoRouteSuffix = '/fido';
 
 const rpName = 'FIDO Conformance Test';
@@ -103,7 +115,7 @@ const supportedAlgorithmIDs = [-7, -8, -35, -36, -37, -38, -39, -257, -258, -259
 /**
  * [FIDO2] Server Tests > MakeCredential Request
  */
-fidoConformanceRouter.post('/attestation/options', (req, res) => {
+fidoConformanceRouter.post('/attestation/options', async (req, res) => {
   const { body } = req;
   const { username, displayName, authenticatorSelection, attestation, extensions } = body;
 
@@ -123,7 +135,7 @@ fidoConformanceRouter.post('/attestation/options', (req, res) => {
 
   const { devices } = user;
 
-  const opts = generateRegistrationOptions({
+  const opts = await generateRegistrationOptions({
     rpName,
     rpID,
     userID: username,
@@ -202,7 +214,7 @@ fidoConformanceRouter.post('/attestation/result', async (req, res) => {
 /**
  * [FIDO2] Server Tests > GetAuthentication Request
  */
-fidoConformanceRouter.post('/assertion/options', (req, res) => {
+fidoConformanceRouter.post('/assertion/options', async (req, res) => {
   const { body } = req;
   const { username, userVerification, extensions } = body;
 
@@ -212,7 +224,7 @@ fidoConformanceRouter.post('/assertion/options', (req, res) => {
 
   const { devices } = user;
 
-  const opts = generateAuthenticationOptions({
+  const opts = await generateAuthenticationOptions({
     extensions,
     userVerification,
     allowCredentials: devices.map(dev => ({
