@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import fs from 'fs';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import fetch from 'node-fetch';
 import base64url from 'base64url';
 
@@ -30,6 +31,17 @@ interface LoggedInFIDOUser extends LoggedInUser {
  * Create paths specifically for testing with the FIDO Conformance Tools
  */
 export const fidoConformanceRouter = express.Router();
+
+// Same limits as the app-wide limiter in index.ts, applied explicitly to the conformance routes
+fidoConformanceRouter.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10000, // Limit each IP to 10000 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
 export const fidoRouteSuffix = '/fido';
 
 const rpName = 'FIDO Conformance Test';
